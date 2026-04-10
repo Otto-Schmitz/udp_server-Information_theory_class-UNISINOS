@@ -24,6 +24,17 @@ So the “encoding / decoding” here is **data compression / representation**, 
 
 1. Start the server: `python3 server.py` — choose bind options from the menu.  
 2. Start the client: `python3 client.py` — set host/port and method, then send messages.  
+3. In the client menu, choose option `7` to read `codificacao.txt`, encode/compress its full content, and send it in one UDP datagram.
+
+### Exercise step: reading `codificacao.txt`
+
+One of the course exercises is to **read a `.txt` file and transmit it through sockets** using the selected coding/compression algorithm.  
+In this project, that step is implemented directly in the client:
+
+- The client opens `codificacao.txt` in UTF-8.
+- It encodes/compresses the file content with Huffman, Elias γ, or Fibonacci.
+- It sends the encoded payload over UDP.
+- The server decodes and prints the reconstructed original text.
 
 Requirements: Python 3.10+ (stdlib only).
 
@@ -53,5 +64,16 @@ Assim, “codificar / decodificar” aqui é **compressão / códigos de fonte**
 
 1. Servidor: `python3 server.py` — opções de escuta no menu.  
 2. Cliente: `python3 client.py` — definir destino e método, depois enviar mensagens.  
+3. No menu do cliente, usar a opção `7` para ler `codificacao.txt`, codificar/comprimir o conteúdo completo e enviar em um datagrama UDP.
+
+### Etapa do exercício: leitura do `codificacao.txt`
+
+Um dos exercícios da disciplina é **ler um arquivo `.txt` e transmiti-lo por sockets** usando o algoritmo escolhido de codificação/compressão.  
+Neste projeto, essa etapa foi implementada de forma direta no cliente:
+
+- O cliente abre `codificacao.txt` em UTF-8.
+- Codifica/comprime o conteúdo com Huffman, Elias γ ou Fibonacci.
+- Envia a carga codificada via UDP.
+- O servidor decodifica e mostra o texto original reconstruído.
 
 Requisito: Python 3.10+ (apenas biblioteca padrão).

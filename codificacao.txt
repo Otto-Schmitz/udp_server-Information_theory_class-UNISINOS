@@ -1,0 +1,7 @@
+História da Codificação e Compressão de Dados
+
+A codificação e a compressão de dados são áreas fundamentais da computação e das telecomunicações, com origem diretamente ligada ao desenvolvimento da teoria da informação no século XX. O marco inicial dessa área ocorreu em 1948, com a publicação do artigo “A Mathematical Theory of Communication”, de Claude Shannon, que estabeleceu os fundamentos da Teoria da Informação.
+
+Shannon introduziu conceitos essenciais como entropia, que mede a quantidade média de informação em uma fonte de dados, e demonstrou que é possível representar dados de forma mais eficiente, eliminando redundâncias. Esse trabalho mostrou que existe um limite teórico mínimo para a compressão de dados sem perda, conhecido como limite de Shannon.
+
+A partir dessas bases, surgiram diversos métodos de codificação. Um dos primeiros e mais importantes foi o código de David A. Huffman, desenvolvido em 1952. O algoritmo de Codificação de Huffman é um método de compressão sem perda que utiliza árvores binárias para atribuir códigos menores a símbolos mais frequentes e códigos maiores a símbolos menos frequentes, otimizando a representação dos dados.

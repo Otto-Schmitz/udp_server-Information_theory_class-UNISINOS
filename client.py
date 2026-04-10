@@ -24,9 +24,37 @@ def _normalizar_host(h: str) -> str:
     return h.strip()
 
 
+def _enviar_texto(sock: socket.socket, host: str, port: int, metodo_str: str, modo: int, texto: str) -> None:
+    meta, payload, n_bits = codificar(texto, modo)
+    pacote = empacotar(modo, meta, payload, n_bits)
+    alvo = _normalizar_host(host)
+    try:
+        sock.sendto(pacote, (alvo, port))
+    except socket.gaierror as e:
+        print(f"  ✗ Nao consegui resolver o host {host!r} — use 127.0.0.1 ou localhost. ({e})")
+        return
+    except OSError as e:
+        print(f"  ✗ Erro de rede ao enviar: {e}")
+        return
+    print(f"  ✓ Enviado ({metodo_str}), {len(pacote)} bytes -> {alvo}:{port}")
+
+
+def _ler_arquivo_texto(caminho: str) -> str | None:
+    try:
+        with open(caminho, "r", encoding="utf-8") as f:
+            return f.read()
+    except FileNotFoundError:
+        print(f"  ✗ Arquivo nao encontrado: {caminho}")
+        return None
+    except OSError as e:
+        print(f"  ✗ Erro ao ler arquivo {caminho}: {e}")
+        return None
+
+
 def main() -> None:
     host = "localhost"
     port = 5000
+    arquivo_padrao = "codificacao.txt"
     metodo_str = "huffman"
     modo = resolver_modo(metodo_str)
 
@@ -43,7 +71,8 @@ def main() -> None:
             print("  3  Usar Fibonacci")
             print("  4  Definir host")
             print("  5  Definir porta")
-            print("  6  Enviar mensagem…")
+            print("  6  Enviar mensagem digitada")
+            print("  7  Ler e enviar arquivo codificacao.txt")
             print("  0  Sair")
             op = input("\n  Escolha: ").strip()
 
@@ -78,18 +107,16 @@ def main() -> None:
                 if not msg.strip():
                     print("  (vazio, ignorado)")
                     continue
-                meta, payload, n_bits = codificar(msg, modo)
-                pacote = empacotar(modo, meta, payload, n_bits)
-                alvo = _normalizar_host(host)
-                try:
-                    sock.sendto(pacote, (alvo, port))
-                except socket.gaierror as e:
-                    print(f"  ✗ Não consegui resolver o host {host!r} — use 127.0.0.1 ou localhost. ({e})")
+                _enviar_texto(sock, host, port, metodo_str, modo, msg)
+            elif op == "7":
+                texto = _ler_arquivo_texto(arquivo_padrao)
+                if texto is None:
                     continue
-                except OSError as e:
-                    print(f"  ✗ Erro de rede ao enviar: {e}")
+                if not texto.strip():
+                    print(f"  (arquivo vazio: {arquivo_padrao})")
                     continue
-                print(f"  ✓ Enviado ({metodo_str}), {len(pacote)} bytes → {alvo}:{port}")
+                print(f"  Lendo {arquivo_padrao} ({len(texto)} caracteres) ...")
+                _enviar_texto(sock, host, port, metodo_str, modo, texto)
             else:
                 print("  Opção desconhecida.")
     finally:
