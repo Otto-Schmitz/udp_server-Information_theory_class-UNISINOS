@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
-"""Servidor UDP: menu TUI para bind; decodifica Huffman / Elias γ / Fibonacci."""
+"""Servidor UDP: menu TUI para bind; César, Huffman / Elias γ / Fibonacci."""
 import socket
 
+from caesar import decifrar, desempacotar_caesar, eh_pacote_caesar
 from codec import NOME_DO_MODO, decodificar, desempacotar
 
 
@@ -41,8 +42,17 @@ def main() -> None:
 
     try:
         while True:
+            # recvfrom(): aguarda datagramas UDP (compressão ou Cifra de César)
             data, addr = sock.recvfrom(65535)
             try:
+                if eh_pacote_caesar(data):
+                    chave, cifrada = desempacotar_caesar(data)
+                    print(f"  de {addr} (César, chave={chave})")
+                    print(f"    cifrada:  {cifrada!r}")
+                    original = decifrar(cifrada, chave)
+                    print(f"    original: {original!r}")
+                    continue
+
                 modo, meta, payload, n_bits = desempacotar(data)
                 texto = decodificar(modo, meta, payload, n_bits)
                 nome = NOME_DO_MODO.get(modo, str(modo))

@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
-"""Cliente UDP: menu TUI — Huffman, Elias γ ou Fibonacci."""
+"""Cliente UDP: menu TUI — César, Huffman, Elias γ ou Fibonacci."""
 import socket
 
+from caesar import cifrar, empacotar_caesar
 from codec import codificar, empacotar, resolver_modo
 
 
@@ -22,6 +23,40 @@ def _normalizar_host(h: str) -> str:
     if k == "local":
         return "localhost"
     return h.strip()
+
+
+def _ler_chave_cesar() -> int | None:
+    """Lê a chave de deslocamento (inteiro) pelo teclado."""
+    try:
+        s = input("  Chave (deslocamento, ex.: 3): ").strip()
+    except EOFError:
+        return None
+    if not s:
+        print("  (chave vazia, ignorado)")
+        return None
+    try:
+        chave = int(s)
+    except ValueError:
+        print("  ✗ Chave deve ser um número inteiro.")
+        return None
+    return chave
+
+
+def _enviar_cesar(sock: socket.socket, host: str, port: int, texto: str, chave: int) -> None:
+    """Cifra de César e envio com sendto()."""
+    cifrada = cifrar(texto, chave)
+    pacote = empacotar_caesar(chave, cifrada)
+    alvo = _normalizar_host(host)
+    try:
+        sock.sendto(pacote, (alvo, port))
+    except socket.gaierror as e:
+        print(f"  ✗ Nao consegui resolver o host {host!r} — use 127.0.0.1 ou localhost. ({e})")
+        return
+    except OSError as e:
+        print(f"  ✗ Erro de rede ao enviar: {e}")
+        return
+    print(f"  ✓ César (chave={chave}): {texto!r} -> {cifrada!r}")
+    print(f"  ✓ Enviado, {len(pacote)} bytes -> {alvo}:{port}")
 
 
 def _enviar_texto(sock: socket.socket, host: str, port: int, metodo_str: str, modo: int, texto: str) -> None:
@@ -71,8 +106,9 @@ def main() -> None:
             print("  3  Usar Fibonacci")
             print("  4  Definir host")
             print("  5  Definir porta")
-            print("  6  Enviar mensagem digitada")
+            print("  6  Enviar mensagem digitada (compressão)")
             print("  7  Ler e enviar arquivo codificacao.txt")
+            print("  8  Cifra de César — mensagem e chave pelo teclado")
             print("  0  Sair")
             op = input("\n  Escolha: ").strip()
 
@@ -117,6 +153,18 @@ def main() -> None:
                     continue
                 print(f"  Lendo {arquivo_padrao} ({len(texto)} caracteres) ...")
                 _enviar_texto(sock, host, port, metodo_str, modo, texto)
+            elif op == "8":
+                try:
+                    msg = input("  Mensagem: ")
+                except EOFError:
+                    break
+                if not msg.strip():
+                    print("  (vazio, ignorado)")
+                    continue
+                chave = _ler_chave_cesar()
+                if chave is None:
+                    continue
+                _enviar_cesar(sock, host, port, msg, chave)
             else:
                 print("  Opção desconhecida.")
     finally:
